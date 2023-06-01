@@ -1,0 +1,6 @@
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names] 
+IP.1 = host-ip
+DNS.2 = host-ip
