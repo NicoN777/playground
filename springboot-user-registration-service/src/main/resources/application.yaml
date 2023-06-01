@@ -1,0 +1,19 @@
+configuration:
+  service:
+    base-url: '/user'
+    registration-path: ${configuration.service.base-url}/register
+    topic: 'user-registration-events'
+
+spring:
+  application:
+    name: 'User Registration Service'
+  kafka:
+    producer:
+      bootstrap-servers: ${BOOTSTRAP_SERVERS}
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: com.github.nicon777.data.schema.serializer.UserSerializer
+      client-id: ${PRODUCER_CLIENT_ID}
+    template:
+      default-topic: ${configuration.service.topic}
+
+

@@ -1,0 +1,1 @@
+docker build --tag toastyboii/springboot-user-registration-service:v0.0.1 .

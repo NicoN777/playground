@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: 'Demo Streams'
+  kafka:
+    streams:
+      bootstrap-servers: ${BOOTSTRAP_SERVERS}
+      application-id: ${APPLICATION_ID}
+      replication-factor: ${REPLICATION_FACTOR}
+      properties:
+        default:
+          deserialization.exception.handler: com.github.nicon777.streams.exception.CustomStreamExceptionHandler
+          key.serde: org.apache.kafka.common.serialization.Serdes$LongSerde
+          value.serde: com.github.nicon777.data.schema.serde.UserSerde
+
+topic.user.registration: 'user-registration-events'
+
+

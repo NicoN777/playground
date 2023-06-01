@@ -1,0 +1,1 @@
+docker build --tag toastyboii/springboot-kafka-streams:v0.0.1 .

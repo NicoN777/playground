@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17
+ARG APP_VERSION=0.0.1-SNAPSHOT
+ARG APP_NAME=user-registration-$APP_VERSION.jar
+ARG APP_TARGET=/opt/app
+ARG APP_JAR=./target/$APP_NAME
+ENV BOOTSTRAP_SERVERS=kafka-broker-1:9092
+ENV REPLICATION_FACTOR=3
+ENV APPLICATION_ID=docker-user-streams
+RUN mkdir $APP_TARGET
+COPY $APP_JAR $APP_TARGET
+CMD ["java", "-jar", "/opt/app/user-registration-0.0.1-SNAPSHOT.jar"]
