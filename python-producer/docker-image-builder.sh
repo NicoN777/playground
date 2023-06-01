@@ -1,0 +1,1 @@
+docker build --tag toastyboii/python-kafka-consumer:v0.0.1 .
