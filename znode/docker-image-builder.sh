@@ -1,0 +1,1 @@
+docker build --no-cache --tag toastyboii/znode:v0.0.1 .
