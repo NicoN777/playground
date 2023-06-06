@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  znode1:
+    image: toastyboii/znode:v0.0.1
+    hostname: znode1
+    env_file: ./znode-1.env
+    ports:
+      - "2182:2182"
+
+  znode2:
+    image: toastyboii/znode:v0.0.1
+    hostname: znode2
+    env_file: ./znode-2.env
+    ports:
+      - "2183:2182"
+
+  znode3:
+    image: toastyboii/znode:v0.0.1
+    hostname: znode3
+    env_file: ./znode-3.env
+    ports:
+      - "2184:2182"
+
+  kafka-broker-1:
+    image: toastyboii/kafka-broker:v0.0.1
+    hostname: kafka-broker-1
+    depends_on:
+      - znode1
+      - znode2
+      - znode3
+    env_file: ./kafka-1.env
+    command: ["configurator"]
+#    restart: on-failure
+    ports:
+      - "19092:19092"
+    expose:
+      - 9092
+      - 19092
+
+  kafka-broker-2:
+    image: toastyboii/kafka-broker:v0.0.1
+    hostname: kafka-broker-2
+    depends_on:
+      - znode1
+      - znode2
+      - znode3
+    env_file: ./kafka-2.env
+    ports:
+      - "19093:19092"
+    expose:
+      - 9092
+      - 19092
+
+  kafka-broker-3:
+    image: toastyboii/kafka-broker:v0.0.1
+    hostname: kafka-broker-3
+    depends_on:
+      - znode1
+      - znode2
+      - znode3
+    env_file: ./kafka-3.env
+    ports:
+      - "19094:19092"
+    expose:
+      - 9092
+      - 19092
+
+  kafka-broker-4:
+    image: toastyboii/kafka-broker:v0.0.1
+    hostname: kafka-broker-4
+    depends_on:
+      - znode1
+      - znode2
+      - znode3
+    env_file: ./kafka-4.env
+    ports:
+      - "19095:19092"
+    expose:
+      - 9092
+      - 19092
+
