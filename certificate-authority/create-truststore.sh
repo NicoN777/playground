@@ -1,4 +1,4 @@
-keytool -keystore ${HOME}/$(hostname)-truststore.jks \
-  -alias CARoot \
-  -import -file /var/lib/ca/ca.cert \
-  -storepass changeit
+keytool -keystore ${TLS_DIR}/$(hostname)-truststore.jks \
+  -alias ca.cert \
+  -import -file ca.cert \
+  -storepass changeit -noprompt

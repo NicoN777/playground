@@ -1,7 +1,13 @@
-cd /var/lib/ca
-sh create-keystore.sh
-sh create-csr.sh
-sh sign-certificate.sh "${HOME}" "$(hostname)"
-sh import-certs.sh
+#cd /var/lib/ca
+echo "Creating TrustStore"
 sh create-truststore.sh
-cd ${HOME}
+echo "Creating KeyStore"
+sh create-keystore.sh
+echo "Creating CSR"
+sh create-csr.sh
+echo "Signing the CSR with the CA"
+sh sign-certificate.sh "${TLS_DIR}" "$(hostname)"
+echo "Importing signed and CA certificate"
+sh import-certs.sh
+
+

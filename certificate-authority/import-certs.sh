@@ -1,11 +1,13 @@
 # Import CA and signed certificate to keystore
 # CA:
-keytool -keystore ${HOME}/$(hostname)-keystore.jks \
+keytool -keystore ${TLS_DIR}/$(hostname)-keystore.jks \
   -storepass changeit \
-  -alias CARoot \
-  -import -file /var/lib/ca/ca.cert
+  -alias ca.cert \
+  -import -file ca.cert -noprompt
+
 
 # Signed:
-keytool -keystore ${HOME}/$(hostname)-keystore.jks \
+keytool -keystore ${TLS_DIR}/$(hostname)-keystore.jks \
   -storepass changeit \
-  -alias $(hostname) -import -file ${HOME}/$(hostname).signed
+  -alias $(hostname) \
+  -import -file ${TLS_DIR}/$(hostname).signed -noprompt

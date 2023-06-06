@@ -3,4 +3,9 @@ subjectAltName = @alt_names
 
 [ alt_names] 
 IP.1 = host-ip
-DNS.2 = host-ip
+IP.2 = container-ip
+DNS.1 = container-1-fqdn
+.
+.
+.
+DNS.N= container-n-fqdn

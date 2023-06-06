@@ -1,5 +1,6 @@
 # Create a CSR
-keytool -keystore ${HOME}/$(hostname)-keystore.jks \
+keytool -keystore ${TLS_DIR}/$(hostname)-keystore.jks \
   -alias $(hostname) \
   -storepass changeit \
-  -certreq -file ${HOME}/$(hostname).csr
+  -certreq -ext SAN=DNS:$(hostname) \
+  -file ${TLS_DIR}/$(hostname).csr
