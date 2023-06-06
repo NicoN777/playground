@@ -3,14 +3,92 @@ echo "This is my env"
 env
 
 echo "Arguments: $@"
+EXTRA_OPTION=${1}
 
-exec kafka-server-start.sh \
-  ${KAFKA_HOME}/config/server.properties \
-  --override zookeeper.connect=${KAFKA_ZOOKEEPER_CONNECT} \
-  --override zookeeper.connection.timeout.ms=${KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS} \
-  --override broker.id=${KAFKA_BROKER_ID} \
-  --override listeners=${KAFKA_LISTENERS} \
-  --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS} \
-  --override listener.security.protocol.map=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP} \
-  --override inter.broker.listener.name=${KAFKA_INTER_BROKER_LISTENER_NAME} \
-  --override log.dirs=${KAFKA_LOG_DIRS}
+
+sh ${TLS_DIR}/ssl-tls-kafka-broker.sh
+
+
+ZOOKEEPER_CLIENT_CONFIG=${KAFKA_CONF_DIR}/zookeeper-client.properties
+{
+  echo "zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty"
+  echo "zookeeper.ssl.client.enable=true"
+  echo "zookeeper.ssl.protocol=TLSv1.2"
+  echo "zookeeper.ssl.truststore.location="${TLS_DIR}/$(hostname)-truststore.jks""
+  echo "zookeeper.ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
+  echo "zookeeper.ssl.keystore.location="${TLS_DIR}/$(hostname)-keystore.jks""
+  echo "zookeeper.ssl.keystore.password=${SSL_KEYSTORE_PASS}"
+  echo "zookeeper.ssl.key.password=${SSL_KEYSTORE_PASS}"
+  echo "zookeeper.ssl.clientAuth=need"
+} > ${ZOOKEEPER_CLIENT_CONFIG}
+
+KAFKA_CLIENT_CONFIG=${KAFKA_CONF_DIR}/kafka-client.properties
+{
+  echo "sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${SASL_BROKER_ADMIN_USERNAME}\" password=\"${SASL_BROKER_ADMIN_PASSWORD}\";"
+  echo "security.protocol=SASL_SSL"
+  echo "sasl.mechanism=SCRAM-SHA-512"
+  echo "ssl.keystore.location="${TLS_DIR}/$(hostname)-keystore.jks""
+  echo "ssl.keystore.password=${SSL_KEYSTORE_PASS}"
+  echo "ssl.key.password=${SSL_KEYSTORE_PASS}"
+  echo "ssl.truststore.location="${TLS_DIR}/$(hostname)-truststore.jks""
+  echo "ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
+} > ${KAFKA_CLIENT_CONFIG}
+
+if [ ${EXTRA_OPTION} == "configurator" ]
+then
+  echo "Running kafka-configs..."
+  sh ${HOME}/configurator.sh
+fi
+
+
+JASS_CONFIG="${KAFKA_CONF_DIR}"/$(hostname)-jaas.conf
+{
+  echo "KafkaServer {
+    org.apache.kafka.common.security.scram.ScramLoginModule required
+     username=\"${SASL_BROKER_ADMIN_USERNAME}\"
+     password=\"${SASL_BROKER_ADMIN_PASSWORD}\";
+  };"
+} > ${JASS_CONFIG}
+
+SERVER_PROPERTIES="${KAFKA_CONF_DIR}/$(hostname).properties"
+{
+  echo "########################## ZooKeeper Propeties #############################"
+  echo "zookeeper.connect=${KAFKA_ZOOKEEPER_CONNECT}"
+#  echo "zookeeper.set.acl=true"
+  echo "zookeeper.ssl.protocol=TLSv1.2"
+  echo "zookeeper.ssl.client.enable=true"
+  echo "zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty"
+  echo "zookeeper.ssl.keystore.location="${TLS_DIR}/$(hostname)-keystore.jks""
+  echo "zookeeper.ssl.keystore.password=${SSL_KEYSTORE_PASS}"
+  echo "zookeeper.ssl.truststore.location="${TLS_DIR}/$(hostname)-truststore.jks""
+  echo "zookeeper.ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
+  echo "zookeeper.ssl.clientAuth=need"
+
+  echo "########################### Broker Propeties ##############################"
+  echo "broker.id=${KAFKA_BROKER_ID}"
+  echo "listeners=${KAFKA_LISTENERS}"
+  echo "advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+  echo "listener.security.protocol.map=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}"
+  echo "inter.broker.listener.name=${KAFKA_INTER_BROKER_LISTENER_NAME}"
+  echo "log.dirs=${KAFKA_LOG_DIRS}"
+
+  echo "####################### Broker Security Properties ##########################"
+  echo "authorizer.class.name=kafka.security.authorizer.AclAuthorizer"
+  echo "ssl.client.auth=${KAFKA_SSL_CLIENT_AUTH}"
+  echo "ssl.protocol=TLSv1.2"
+  echo "ssl.keystore.location="${TLS_DIR}/$(hostname)-keystore.jks""
+  echo "ssl.keystore.password=${SSL_KEYSTORE_PASS}"
+  echo "ssl.key.password=${SSL_KEYSTORE_PASS}"
+  echo "ssl.truststore.location="${TLS_DIR}/$(hostname)-truststore.jks""
+  echo "ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
+  echo "sasl.enabled.mechanisms=SCRAM-SHA-512"
+  echo "sasl.mechanism.inter.broker.protocol=SCRAM-SHA-512"
+  echo "listener.name.sasl_ssl.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${SASL_BROKER_ADMIN_USERNAME}\" password=\"${SASL_BROKER_ADMIN_PASSWORD}\";"
+  echo "super.users=User:${SASL_BROKER_ADMIN_USERNAME}"
+} > ${SERVER_PROPERTIES}
+
+cat ${SERVER_PROPERTIES}
+
+export KAFKA_OPTS="-Djava.security.auth.login.config=${JASS_CONFIG}"
+echo ${KAFKA_OPTS}
+exec kafka-server-start.sh ${SERVER_PROPERTIES}
