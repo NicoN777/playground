@@ -8,6 +8,23 @@ spring:
   application:
     name: 'User Registration Service'
   kafka:
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: SCRAM-SHA-512
+        jaas:
+          config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${SASL_BROKER_ADMIN_USERNAME}' password='${SASL_BROKER_ADMIN_PASSWORD}';
+    security:
+      protocol: SASL_SSL
+    ssl:
+      key-password: ${SSL_KEY_PASSWORD}
+      key-store-location: file:${SSL_KEYSTORE_LOCATION}
+      key-store-password: ${SSL_KEYSTORE_PASSWORD}
+      trust-store-location: file:${SSL_TRUSTSTORE_LOCATION}
+      trust-store-password: ${SSL_TRUSTSTORE_PASSWORD}
+    jaas:
+      enabled: true
     producer:
       bootstrap-servers: ${BOOTSTRAP_SERVERS}
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
@@ -15,5 +32,4 @@ spring:
       client-id: ${PRODUCER_CLIENT_ID}
     template:
       default-topic: ${configuration.service.topic}
-
 
