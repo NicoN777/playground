@@ -1,7 +1,24 @@
+echo "I am the docker-entrypoint.sh"
+echo "This is my env"
+env
+
+echo "Arguments: $@"
+
+
+sh ${TLS_DIR}/ssl-tls.sh
+
 CONFIG=$ZOO_CONF_DIR/zoo.cfg
 {
   echo "clientPort=$ZOO_CLIENT_PORT"
+  echo "secureClientPort=$ZOO_SECURE_CLIENT_PORT"
   echo "dataDir=$ZOO_DATA_DIR"
+  echo "serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory"
+  echo "clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty"
+  echo "authProvider.x509=org.apache.zookeeper.server.auth.X509AuthenticationProvider"
+  echo "ssl.keyStore.location="${TLS_DIR}/$(hostname)-keystore.jks""
+  echo "ssl.keyStore.password=${ZOO_KEYSTORE_PASS}"
+  echo "ssl.trustStore.location="${TLS_DIR}/$(hostname)-truststore.jks""
+  echo "ssl.trustStore.password=${ZOO_TRUSTSTORE_PASS}"
   echo "dataLogDir=$ZOO_DATA_LOG_DIR"
   echo "tickTime=$ZOO_TICK_TIME"
   echo "initLimit=$ZOO_INIT_LIMIT"
