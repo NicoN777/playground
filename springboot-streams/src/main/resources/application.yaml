@@ -8,15 +8,15 @@ spring:
       sasl:
         mechanism: SCRAM-SHA-512
         jaas:
-          config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${SASL_BROKER_ADMIN_USERNAME}' password='${SASL_BROKER_ADMIN_PASSWORD}';
+          config: org.apache.kafka.common.security.scram.ScramLoginModule required username='${SASL_BROKER_ADMIN_USERNAME}' password='${SASL_BROKER_ADMIN_PASS}';
     security:
       protocol: SASL_SSL
     ssl:
-      key-password: ${SSL_KEY_PASSWORD}
+      key-password: ${SSL_KEY_PASS}
       key-store-location: file:${SSL_KEYSTORE_LOCATION}
-      key-store-password: ${SSL_KEYSTORE_PASSWORD}
+      key-store-password: ${SSL_KEYSTORE_PASS}
       trust-store-location: file:${SSL_TRUSTSTORE_LOCATION}
-      trust-store-password: ${SSL_TRUSTSTORE_PASSWORD}
+      trust-store-password: ${SSL_TRUSTSTORE_PASS}
     jaas:
       enabled: true
     streams:
