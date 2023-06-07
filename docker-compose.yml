@@ -80,3 +80,12 @@ services:
       - 9092
       - 19092
 
+  springboot-user-registration-service:
+    image: toastyboii/springboot-user-registration-service:v0.0.1
+    env_file: ./user-registration-service.env
+    depends_on:
+      - kafka-broker-1
+    ports:
+      - "443:443"
+    expose:
+      - 443
