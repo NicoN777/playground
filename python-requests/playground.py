@@ -20,8 +20,8 @@ def post_user_registration_request(payload):
     headers = {
         'Content-Type': 'application/json'
     }
-    url = "http://localhost:8080/user/register"
-    return requests.request("POST", url, headers=headers, json=payload)
+    url = "https://192.168.1.189:443/user/register"
+    return requests.request("POST", url, headers=headers, json=payload, verify=False)
 
 
 def make_user_registration_requests():

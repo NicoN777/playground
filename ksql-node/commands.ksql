@@ -1,0 +1,21 @@
+#Random Statements
+
+CREATE STREAM user_registration_events_stream (id BIGINT, first_name VARCHAR, last_name VARCHAR, email VARCHAR, dob DATE, country VARCHAR, city VARCHAR) WITH(kafka_topic='user-registration-events', value_format='json', partitions=1);
+
+
+CREATE TABLE user_registration_events_city AS
+    SELECT city, COUNT(*) as cnt
+    FROM user_registration_events_stream
+    GROUP BY city
+EMIT CHANGES;
+
+
+
+CREATE TABLE user_registration_events_country AS
+    SELECT country, COUNT(*) as cnt
+    FROM user_registration_events_stream
+    GROUP BY country
+EMIT CHANGES;
+
+
+

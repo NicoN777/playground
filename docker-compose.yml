@@ -80,6 +80,14 @@ services:
       - 9092
       - 19092
 
+  ksql-node-1:
+    image: toastyboii/ksql-node:v0.0.1
+    hostname: ksql-node-1
+    env_file: ./ksql-node-1.env
+    depends_on:
+      - kafka-broker-1
+
+
   springboot-kafka-streams:
     image: toastyboii/springboot-kafka-streams:v0.0.1
     env_file: ./kafka-streams.env

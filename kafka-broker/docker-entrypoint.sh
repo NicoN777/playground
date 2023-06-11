@@ -41,14 +41,14 @@ then
 fi
 
 
-JASS_CONFIG="${KAFKA_CONF_DIR}"/$(hostname)-jaas.conf
+JAAS_CONFIG="${KAFKA_CONF_DIR}"/$(hostname)-jaas.conf
 {
   echo "KafkaServer {
     org.apache.kafka.common.security.scram.ScramLoginModule required
      username=\"${SASL_BROKER_ADMIN_USERNAME}\"
      password=\"${SASL_BROKER_ADMIN_PASSWORD}\";
   };"
-} > ${JASS_CONFIG}
+} > ${JAAS_CONFIG}
 
 SERVER_PROPERTIES="${KAFKA_CONF_DIR}/$(hostname).properties"
 {
@@ -89,6 +89,6 @@ SERVER_PROPERTIES="${KAFKA_CONF_DIR}/$(hostname).properties"
 
 cat ${SERVER_PROPERTIES}
 
-export KAFKA_OPTS="-Djava.security.auth.login.config=${JASS_CONFIG}"
+export KAFKA_OPTS="-Djava.security.auth.login.config=${JAAS_CONFIG}"
 echo ${KAFKA_OPTS}
 exec kafka-server-start.sh ${SERVER_PROPERTIES}
