@@ -38,6 +38,8 @@ if [ ${EXTRA_OPTION} == "configurator" ]
 then
   echo "Running kafka-configs..."
   sh ${HOME}/configurator.sh
+  echo "User and ACL Creation for KSQL user..."
+  sh ${HOME}/ksql-user-acl-configurator.sh
 fi
 
 
