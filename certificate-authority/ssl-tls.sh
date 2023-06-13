@@ -69,6 +69,18 @@ keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
   -alias $(hostname) \
   -import -file ${TLS_DIR}/$(hostname).signed -noprompt
 
+# For clients that don't support Java Keystores
+#keytool -importkeystore \
+#    -srckeystore ${TLS_DIR}/$(hostname)-keystore.jks \
+#    -srckeypass ${SSL_KEYSTORE_PASS} \
+#    -destkeystore ${TLS_DIR}/$(hostname)-keystore.p12 \
+#    -deststoretype PKCS12 \
+#    -srcalias $(hostname) \
+#    -deststorepass ${SSL_KEYSTORE_PASS} \
+#    -destkeypass ${SSL_KEY_PASS:-changeit}
+#
+#openssl pkcs12 -in ${TLS_DIR}/$(hostname)-keystore.p12 -nokeys -out ${TLS_DIR}/$(hostname).pem
+#openssl pkcs12 -in ${TLS_DIR}/$(hostname)-keystore.p12 -nodes -nocerts -out ${TLS_DIR}/$(hostname).key
 
 #Clean Up
 rm ${TLS_DIR}/ca.key
