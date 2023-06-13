@@ -1,7 +1,3 @@
-echo "I am the docker-entrypoint.sh"
-echo "This is my env"
-env
-
 echo "Arguments: $@"
 
 
