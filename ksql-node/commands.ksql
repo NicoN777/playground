@@ -1,9 +1,11 @@
-#Random Statements
+-- Some Statements
 
-CREATE STREAM user_registration_events_stream (id BIGINT, first_name VARCHAR, last_name VARCHAR, email VARCHAR, dob DATE, country VARCHAR, city VARCHAR) WITH(kafka_topic='user-registration-events', value_format='json', partitions=1);
+CREATE STREAM user_registration_events_stream
+(id BIGINT, first_name VARCHAR, last_name VARCHAR, email VARCHAR, dob DATE, country VARCHAR, city VARCHAR)
+WITH(kafka_topic='user-registration-events', value_format='json', partitions=4);
 
 
-CREATE TABLE user_registration_events_city AS
+CREATE TABLE user_registration_events_by_city AS
     SELECT city, COUNT(*) as cnt
     FROM user_registration_events_stream
     GROUP BY city
@@ -11,7 +13,7 @@ EMIT CHANGES;
 
 
 
-CREATE TABLE user_registration_events_country AS
+CREATE TABLE user_registration_events_by_country AS
     SELECT country, COUNT(*) as cnt
     FROM user_registration_events_stream
     GROUP BY country
@@ -19,3 +21,22 @@ EMIT CHANGES;
 
 
 
+
+CREATE STREAM order_events_stream
+(id BIGINT,
+customer_id BIGINT,
+total DECIMAL(10,2),
+currency VARCHAR,
+create_date BIGINT,
+shipping_address VARCHAR,
+shipping_city VARCHAR,
+shipping_state VARCHAR,
+shipping_zip VARCHAR)
+WITH(kafka_topic='order-events', value_format='json', partitions=4);
+
+
+CREATE TABLE order_revenue_by_shipping_state AS
+    SELECT shipping_state, sum(total) AS total_sum
+    FROM order_events_stream
+    GROUP BY shipping_state
+EMIT CHANGES;
