@@ -80,6 +80,15 @@ services:
       - 9092
       - 19092
 
+  python-kafka-admin-client:
+    image: toastyboii/python-admin-client:v0.0.1
+    hostname: python-kafka-admin-client
+    env_file: ./python-admin-client.env
+    tty: true
+    stdin_open: true
+    depends_on:
+      - kafka-broker-1
+
   ksql-node-1:
     image: toastyboii/ksql-node:v0.0.1
     hostname: ksql-node-1
