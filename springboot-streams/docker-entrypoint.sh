@@ -1,6 +1,6 @@
 echo "Arguments: $@"
 export SSL_KEYSTORE_LOCATION=${TLS_DIR}/$(hostname)-keystore.jks
-export SSL_TRUSTSTORE_LOCATION=${TLS_DIR}/$(hostname)-keystore.jks
+export SSL_TRUSTSTORE_LOCATION=${TLS_DIR}/$(hostname)-truststore.jks
 export SSL_KEY_ALIAS=$(hostname)
 
 if [ ! -f ${SSL_TRUSTSTORE_LOCATION} ] || [ ! -f ${SSL_KEYSTORE_LOCATION} ]
