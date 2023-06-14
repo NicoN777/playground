@@ -5,6 +5,11 @@ services:
     image: toastyboii/znode:v0.0.1
     hostname: znode1
     env_file: ./znode-1.env
+    healthcheck:
+      test: ["CMD", "sh", "-c" ,"/home/zookeeper/healthcheck.sh"]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     ports:
       - "2182:2182"
 
@@ -12,6 +17,11 @@ services:
     image: toastyboii/znode:v0.0.1
     hostname: znode2
     env_file: ./znode-2.env
+    healthcheck:
+      test: ["CMD", "sh", "-c" ,"/home/zookeeper/healthcheck.sh"]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     ports:
       - "2183:2182"
 
@@ -19,6 +29,11 @@ services:
     image: toastyboii/znode:v0.0.1
     hostname: znode3
     env_file: ./znode-3.env
+    healthcheck:
+      test: ["CMD", "sh", "-c" ,"/home/zookeeper/healthcheck.sh"]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     ports:
       - "2184:2182"
 
@@ -26,9 +41,12 @@ services:
     image: toastyboii/kafka-broker:v0.0.1
     hostname: kafka-broker-1
     depends_on:
-      - znode1
-      - znode2
-      - znode3
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
     env_file: ./kafka-1.env
     command: ["configurator"]
 #    restart: on-failure
@@ -42,9 +60,12 @@ services:
     image: toastyboii/kafka-broker:v0.0.1
     hostname: kafka-broker-2
     depends_on:
-      - znode1
-      - znode2
-      - znode3
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
     env_file: ./kafka-2.env
     ports:
       - "19093:19092"
@@ -56,9 +77,12 @@ services:
     image: toastyboii/kafka-broker:v0.0.1
     hostname: kafka-broker-3
     depends_on:
-      - znode1
-      - znode2
-      - znode3
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
     env_file: ./kafka-3.env
     ports:
       - "19094:19092"
@@ -70,9 +94,12 @@ services:
     image: toastyboii/kafka-broker:v0.0.1
     hostname: kafka-broker-4
     depends_on:
-      - znode1
-      - znode2
-      - znode3
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
     env_file: ./kafka-4.env
     ports:
       - "19095:19092"
@@ -96,19 +123,23 @@ services:
     depends_on:
       - kafka-broker-1
 
+  springboot-user-registration-service:
+    image: toastyboii/springboot-user-registration-service:v0.0.1
+    env_file: ./user-registration-service.env
+    depends_on:
+      kafka-broker-1:
+        condition: service_started
+    ports:
+      - "443:443"
+    expose:
+      - 443
 
   springboot-kafka-streams:
     image: toastyboii/springboot-kafka-streams:v0.0.1
     env_file: ./kafka-streams.env
     depends_on:
-      - kafka-broker-1
+      kafka-broker-1:
+        condition: service_started
+      springboot-user-registration-service:
+        condition: service_started
 
-  springboot-user-registration-service:
-    image: toastyboii/springboot-user-registration-service:v0.0.1
-    env_file: ./user-registration-service.env
-    depends_on:
-      - kafka-broker-1
-    ports:
-      - "443:443"
-    expose:
-      - 443
