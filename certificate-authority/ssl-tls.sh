@@ -10,14 +10,14 @@ CN=${6:-ca.cert}
 
 
 # Create a TrustStore
-keytool -keystore "${TLS_DIR}/$(hostname)-truststore.jks" \
+keytool -keystore ${SSL_TRUSTSTORE_LOCATION} \
   -alias ca.cert \
   -import -file ${TLS_DIR}/ca.cert \
   -storepass ${SSL_TRUSTSTORE_PASS} -noprompt
 
 
 # Create a Keystore
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -alias $(hostname) \
   -storepass ${SSL_KEYSTORE_PASS} \
   -validity 365 \
@@ -27,7 +27,7 @@ keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
   -ext SAN=DNS:$(hostname)
 
 # Create a CSR
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -alias $(hostname) \
   -storepass ${SSL_KEYSTORE_PASS} \
   -certreq -ext SAN=DNS:$(hostname) \
@@ -57,14 +57,14 @@ openssl x509 -req -CA ${TLS_DIR}/ca.cert \
 
 # Import CA and signed certificate to keystore
 # CA:
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -storepass ${SSL_KEYSTORE_PASS} \
   -alias ca.cert \
   -import -file ${TLS_DIR}/ca.cert -noprompt
 
 
 # Signed:
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -storepass ${SSL_KEYSTORE_PASS} \
   -alias $(hostname) \
   -import -file ${TLS_DIR}/$(hostname).signed -noprompt

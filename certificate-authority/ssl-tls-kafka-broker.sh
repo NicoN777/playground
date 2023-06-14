@@ -14,14 +14,14 @@ CN=${6:-ca.cert}
 
 
 # Create a TrustStore
-keytool -keystore "${TLS_DIR}/$(hostname)-truststore.jks" \
+keytool -keystore ${SSL_TRUSTSTORE_LOCATION} \
   -alias ca.cert \
   -import -file ${TLS_DIR}/ca.cert \
   -storepass ${SSL_TRUSTSTORE_PASS} -noprompt
 
 
 # Create a Keystore
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -alias kafka-broker \
   -storepass ${SSL_KEYSTORE_PASS} \
   -validity 365 \
@@ -31,7 +31,7 @@ keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
   -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4
 
 # Create a CSR
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -alias kafka-broker \
   -storepass ${SSL_KEYSTORE_PASS} \
   -certreq -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4 \
@@ -64,14 +64,14 @@ openssl x509 -req -CA ${TLS_DIR}/ca.cert \
 
 # Import CA and signed certificate to keystore
 # CA:
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -storepass ${SSL_KEYSTORE_PASS} \
   -alias ca.cert \
   -import -file ${TLS_DIR}/ca.cert -noprompt
 
 
 # Signed:
-keytool -keystore "${TLS_DIR}/$(hostname)-keystore.jks" \
+keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -storepass ${SSL_KEYSTORE_PASS} \
   -alias kafka-broker \
   -import -file ${TLS_DIR}/$(hostname).signed -noprompt

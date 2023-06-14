@@ -1,19 +1,24 @@
 echo "Arguments: $@"
 
 
-sh ${TLS_DIR}/ssl-tls.sh
+export SSL_KEYSTORE_LOCATION=${TLS_DIR}/$(hostname)-keystore.jks
+export SSL_TRUSTSTORE_LOCATION=${TLS_DIR}/$(hostname)-keystore.jks
+export SSL_KEY_ALIAS=$(hostname)
+if [ ! -f ${SSL_TRUSTSTORE_LOCATION} ] || [ ! -f ${SSL_KEYSTORE_LOCATION} ]
+then
+  sh ${TLS_DIR}/ssl-tls.sh
+else
+  echo "keystore and trustore exist..."
+fi
 
-
-SSL_KEYSTORE_LOCATION=${TLS_DIR}/$(hostname)-keystore.jks
-SSL_TRUSTSTORE_LOCATION=${TLS_DIR}/$(hostname)-truststore.jks
 
 
 KAFKA_CLIENT_CONFIG=${KSQL_CONF_DIR}/kafka-client.properties
 {
-  echo "ssl.keystore.location=${TLS_DIR}/$(hostname)-keystore.jks"
+  echo "ssl.keystore.location=${SSL_KEYSTORE_LOCATION}"
   echo "ssl.keystore.password=${SSL_KEYSTORE_PASS}"
   echo "ssl.key.password=${SSL_KEYSTORE_PASS}"
-  echo "ssl.truststore.location=${TLS_DIR}/$(hostname)-truststore.jks"
+  echo "ssl.truststore.location=${SSL_TRUSTSTORE_LOCATION}"
   echo "ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
 } > ${KAFKA_CLIENT_CONFIG}
 
