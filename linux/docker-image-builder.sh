@@ -1,1 +1,1 @@
-docker build --no-cache --tag toastyboii/base-ol9-node:v0.0.1 .
+docker build --tag toastyboii/base-ol9-node:v0.0.1 .
