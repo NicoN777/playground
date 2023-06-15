@@ -28,13 +28,13 @@ keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -genkey -keyalg RSA \
   -keysize 2048 \
   -dname "CN=kafka-broker,O=${ORGANIZATION},OU=${ORGANIZATIONAL_UNIT},L=${LOCALITY},ST=${STATE},C=${COUNTRY}" \
-  -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4
+  -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4,DNS:kafka-broker-5
 
 # Create a CSR
 keytool -keystore ${SSL_KEYSTORE_LOCATION} \
   -alias kafka-broker \
   -storepass ${SSL_KEYSTORE_PASS} \
-  -certreq -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4 \
+  -certreq -ext SAN=DNS:kafka-broker-1,DNS:kafka-broker-2,DNS:kafka-broker3,DNS:kafka-broker-4,DNS:kafka-broker-5 \
   -file ${TLS_DIR}/$(hostname).csr
 
 # Sign the Certificate
@@ -50,6 +50,7 @@ CONFIG=$TLS_DIR/openssl.cnf
   echo "DNS.2 = kafka-broker-2"
   echo "DNS.3 = kafka-broker-3"
   echo "DNS.4 = kafka-broker-4"
+  echo "DNS.5 = kafka-broker-5"
 } > ${CONFIG}
 cat ${CONFIG}
 

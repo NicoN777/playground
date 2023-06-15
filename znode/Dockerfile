@@ -35,12 +35,11 @@ RUN sh /tmp/install.sh $ZOO_USER $ZOO_USER_HOME $ZOO_INSTALL_NAME $TEMP_INSTALL_
 USER $ZOO_USER
 WORKDIR $ZOO_USER_HOME
 RUN sudo mkdir -p ${TLS_DIR} && sudo chown -R ${ZOO_USER_UID}:${ZOO_USER_UID} ${TLS_DIR}
-COPY --chown=${ZOO_USER_UID}:${ZOO_USER_UID} local_policy.jar ${ZOO_HOME}/lib
-COPY --chown=${ZOO_USER_UID}:${ZOO_USER_UID} US_export_policy.jar ${ZOO_HOME}/lib
-RUN sudo chmod 755 ${ZOO_HOME}/lib/local_policy.jar && sudo chmod 755 ${ZOO_HOME}/lib/US_export_policy.jar
 RUN sudo chown -R ${ZOO_USER_UID}:${ZOO_USER_UID} ${TLS_DIR}
 COPY --chown=${ZOO_USER_UID}:${ZOO_USER_UID} certificate-authority ${TLS_DIR}
 COPY --chown=${ZOO_USER_UID}:${ZOO_USER_UID} docker-entrypoint.sh $ZOO_USER_HOME
+COPY --chown=${ZOO_USER_UID}:${ZOO_USER_UID} healthcheck.sh $ZOO_USER_HOME
+RUN sudo chmod 755 ${ZOO_USER_HOME}/healthcheck.sh
 ENTRYPOINT ["sh", "docker-entrypoint.sh"]
 CMD ["zkServer.sh", "start-foreground"]
 EXPOSE 2181 2182 2888 3888 8080

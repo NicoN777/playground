@@ -66,6 +66,8 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
     env_file: ./kafka-2.env
     ports:
       - "19093:19092"
@@ -83,6 +85,8 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
     env_file: ./kafka-3.env
     ports:
       - "19094:19092"
@@ -100,9 +104,30 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
     env_file: ./kafka-4.env
     ports:
       - "19095:19092"
+    expose:
+      - 9092
+      - 19092
+
+  kafka-broker-5:
+    image: toastyboii/kafka-broker:v0.0.1
+    hostname: kafka-broker-5
+    depends_on:
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    env_file: ./kafka-5.env
+    ports:
+      - "19096:19092"
     expose:
       - 9092
       - 19092
@@ -121,7 +146,8 @@ services:
     hostname: ksql-node-1
     env_file: ./ksql-node-1.env
     depends_on:
-      - kafka-broker-1
+      kafka-broker-1:
+        condition: service_started
 
   springboot-user-registration-service:
     image: toastyboii/springboot-user-registration-service:v0.0.1
