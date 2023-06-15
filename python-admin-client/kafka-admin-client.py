@@ -40,6 +40,12 @@ def get_admin_client(conf):
     admin_client = AdminClient(conf)
     cluster_metadata = admin_client.list_topics()
     print(f'Cluster metadata: {cluster_metadata}')
+    for broker in cluster_metadata.brokers:
+        print(broker)
+
+    for topic in cluster_metadata.topics:
+        print(topic)
+
     return admin_client
 
 
