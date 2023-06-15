@@ -36,6 +36,9 @@ public class Processor {
                 .count(Named.as("registrations-by-country"),
                         Materialized.with(stringSerde, longSerde));
 
-        countByCountryKTable.toStream().peek((k, v) -> log.info("Consuming here: {}, {}", k, v));
+        countByCountryKTable
+                .toStream()
+                .peek((k, v) -> log.info("Consuming here: {}, {}", k, v))
+                .to("user-registrations-by-country",Produced.with(stringSerde, longSerde));
     }
 }
