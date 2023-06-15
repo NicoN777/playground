@@ -25,8 +25,9 @@ RUN sh install.sh $SCALA_VERSION $KAFKA_VERSION
 RUN sudo mkdir -p ${TLS_DIR} && sudo chown -R ${KAFKA_USER_UID}:${KAFKA_USER_UID} ${TLS_DIR}
 RUN sudo mkdir -p ${KAFKA_LOG_DIRS} && sudo chown -R ${KAFKA_USER_UID}:${KAFKA_USER_UID} ${KAFKA_LOG_DIRS}
 COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} certificate-authority ${TLS_DIR}
-COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} configurator.sh ${KAFKA_USER_HOME}
-COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} ksql-user-acl-configurator.sh ${KAFKA_USER_HOME}
+COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} kafka-configs-user-creator.sh ${KAFKA_USER_HOME}
+COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} kafka-configs-ksql-user-creator.sh ${KAFKA_USER_HOME}
+COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} ksql-acl-configurator.sh ${KAFKA_USER_HOME}
 COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} docker-entrypoint.sh ${KAFKA_USER_HOME}
 RUN chmod -x docker-entrypoint.sh
 ENTRYPOINT ["sh", "docker-entrypoint.sh"]

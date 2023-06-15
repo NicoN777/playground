@@ -40,9 +40,9 @@ KAFKA_CLIENT_CONFIG=${KAFKA_CONF_DIR}/kafka-client.properties
 if [ ${EXTRA_OPTION} == "configurator" ]
 then
   echo "Running kafka-configs..."
-  sh ${HOME}/configurator.sh
-  echo "User and ACL Creation for KSQL user..."
-  sh ${HOME}/ksql-user-acl-configurator.sh
+  sh ${HOME}/kafka-configs-user-creator.sh "${SASL_BROKER_ADMIN_USERNAME}" "${SASL_BROKER_ADMIN_PASSWORD}"
+  echo "User Creation for KSQL user..."
+  sh ${HOME}/kafka-configs-ksql-user-creator.sh
 fi
 
 
@@ -65,7 +65,7 @@ SERVER_PROPERTIES="${KAFKA_CONF_DIR}/$(hostname).properties"
   echo "zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty"
   echo "zookeeper.ssl.keystore.location=${SSL_KEYSTORE_LOCATION}"
   echo "zookeeper.ssl.keystore.password=${SSL_KEYSTORE_PASS}"
-  echo "zookeeper.ssl.truststore.location=${SSL_TRUSTSTORE_LOCATION}
+  echo "zookeeper.ssl.truststore.location=${SSL_TRUSTSTORE_LOCATION}"
   echo "zookeeper.ssl.truststore.password=${SSL_TRUSTSTORE_PASS}"
   echo "zookeeper.ssl.clientAuth=need"
 

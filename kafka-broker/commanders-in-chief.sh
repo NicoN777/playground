@@ -1,6 +1,10 @@
 # Kafka Commands Cheat Sheet
 # All assume KAFKA_HOME is set and available in PATH
 
+#Create some topics
+kafka-topics.sh --bootstrap-server $(hostname):9092 --command-config ${KAFKA_CONF_DIR}/kafka-client.properties --create --topic user-registration-events --partitions 5 --replication-factor 5
+kafka-topics.sh --bootstrap-server $(hostname):9092 --command-config ${KAFKA_CONF_DIR}/kafka-client.properties --create --topic order-events --partitions 5 --replication-factor 5
+
 kafka-topics.sh --bootstrap-server $(hostname):9092 --command-config ${KAFKA_CONF_DIR}/kafka-client.properties --list
 kafka-topics.sh --bootstrap-server $(hostname):9092 --command-config ${KAFKA_CONF_DIR}/kafka-client.properties --alter --topic user-registration-events --partitions 4
 
