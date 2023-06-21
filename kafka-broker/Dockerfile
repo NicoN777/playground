@@ -28,7 +28,9 @@ COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} certificate-authority ${TLS_DIR
 COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} kafka-configs-user-creator.sh ${KAFKA_USER_HOME}
 COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} kafka-configs-ksql-user-creator.sh ${KAFKA_USER_HOME}
 COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} ksql-acl-configurator.sh ${KAFKA_USER_HOME}
-COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} docker-entrypoint.sh ${KAFKA_USER_HOME}
-RUN chmod -x docker-entrypoint.sh
-ENTRYPOINT ["sh", "docker-entrypoint.sh"]
+COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} healthcheck.sh ${CONFLUENT_USER_HOME}
+COPY --chown=${KAFKA_USER_UID}:${KAFKA_USER_UID} docker-entrypoint-kafka-server.sh ${KAFKA_USER_HOME}
+RUN chmod -x docker-entrypoint-kafka-server.sh
+RUN sudo chmod 755 ${KAFKA_USER_HOME}/healthcheck.sh
+ENTRYPOINT ["sh", "docker-entrypoint-kafka-server.sh"]
 CMD [""]

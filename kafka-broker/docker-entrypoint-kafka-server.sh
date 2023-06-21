@@ -79,7 +79,7 @@ SERVER_PROPERTIES="${KAFKA_CONF_DIR}/$(hostname).properties"
 
   echo "####################### Broker Security Properties ##########################"
   echo "authorizer.class.name=kafka.security.authorizer.AclAuthorizer"
-  echo "ssl.client.auth=${KAFKA_SSL_CLIENT_AUTH}"
+  echo "ssl.client.authentication=${SSL_CLIENT_AUTHENTICATION}"
   echo "ssl.protocol=TLSv1.2"
   echo "ssl.keystore.location=${SSL_KEYSTORE_LOCATION}"
   echo "ssl.keystore.password=${SSL_KEYSTORE_PASS}"
