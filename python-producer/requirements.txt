@@ -1,4 +1,10 @@
+attrs==23.1.0
 avro==1.11.1
+certifi==2023.5.7
+charset-normalizer==3.1.0
 confluent-kafka==2.1.1
-python-dateutil==2.8.2
-six==1.16.0
+idna==3.4
+jsonschema==4.17.3
+pyrsistent==0.19.3
+requests==2.31.0
+urllib3==1.26.12

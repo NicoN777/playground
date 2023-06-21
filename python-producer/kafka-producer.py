@@ -1,19 +1,14 @@
 import sys
-import random
-import time
 from confluent_kafka import Producer
-from confluent_kafka.serialization import IntegerSerializer
+from confluent_kafka.serialization import IntegerSerializer, SerializationContext, MessageField
+from confluent_kafka.schema_registry.avro import AvroSerializer
+from confluent_kafka.schema_registry import SchemaRegistryClient
+
 import argparse
 import glob
 import os
 import avro.schema
-from avro.io import DatumReader
-from avro.datafile import DataFileReader
 import json
-
-
-
-
 
 def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='python-kafka-producer',
@@ -26,6 +21,7 @@ def get_argument_parser() -> argparse.ArgumentParser:
 
 
 def conf_builder(parsed):
+    hostname = os.uname()[1]
 
     conf = {
         'bootstrap.servers': parsed.bootstrap_servers,
@@ -39,6 +35,20 @@ def conf_builder(parsed):
         }
     return conf
 
+def schema_registry_conf():
+    hostname = os.uname()[1]
+    schema_registry_url = f"{os.getenv('SCHEMA_REGISTRY_URL')}"
+    sr_config = {
+        'url': schema_registry_url,
+        'ssl.ca.location': f"{os.getenv('TLS_DIR')}/ca.cert",
+        'ssl.certificate.location': f"{os.getenv('TLS_DIR')}/{hostname}.pem",
+        'ssl.key.location': f"{os.getenv('TLS_DIR')}/{hostname}.key"
+    }
+    return sr_config
+
+def get_schema_registry_client():
+    schema_registry_client = SchemaRegistryClient(schema_registry_conf())
+    return schema_registry_client
 
 def get_producer(conf):
     producer = Producer(conf)
@@ -47,49 +57,15 @@ def get_producer(conf):
     return producer
 
 
-def parse_schemas(schema_definition_path=None):
-    if not schema_definition_path:
-        cur_dir = os.getcwd()
-        schema_dir = 'schema/avro'
-        schema_definition_path = os.path.join(cur_dir, schema_dir)
-
-    pattern = '*.avsc'
-    schema_map = {}
-    for filename in glob.glob(f'{schema_definition_path}/{pattern}'):
-        print(filename)
-        base_name = os.path.basename(filename)
-        base = base_name.split('.')[0]
-        with open(filename, 'rb') as fin:
-            schema = avro.schema.parse(fin.read())
-            print(f'Read schema with type: {schema.type} and name: {schema.name}')
-            schema_map[schema.name] = {
-                'schema': schema,
-                'read_path': f'{schema_definition_path}/{base}.avro',
-                'write_path': f'{schema_definition_path}/{base}.avro'
-            }
-    return schema_map
-
-
-def read_orders(schema):
-    with open(schema['read_path'], 'rb') as fin:
-        reader = DataFileReader(fin, DatumReader())
-        for order in reader:
-            yield order['customer_id'], order
-
-
-def generate_orders(schema):
+def read_orders():
     path = os.getcwd()
     filename = os.path.join(path, 'mock-order-data-v1.json')
     with open(filename) as fin:
         orders = json.load(fin)
-        with open(schema['write_path'], 'wb') as fout:
-            writer = DataFileWriter(fout, DatumWriter(), schema['schema'])
-            for order in orders:
-                order['create_date'] = int(order['create_date'])
-                order['currency'] = 'USD'
-                # print(order)
-                writer.append(order)
-            writer.close()
+        for order in orders:
+            order['create_date'] = int(order['create_date'])
+            order['currency'] = 'USD'
+            yield order['customer_id'], order
 
 
 def delivery_report(err, msg):
@@ -101,26 +77,43 @@ def delivery_report(err, msg):
         print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
 
 
-def produce_order_events(producer, topic):
-    schemas = parse_schemas()
+def get_schema(schema_registry_client, subject_name):
+    subject_name_versions = schema_registry_client.get_versions(subject_name)
+    latest = schema_registry_client.get_latest_version(subject_name)
+    id = latest.schema_id
+    subject = latest.subject
+    version = latest.version
+    schema = latest.schema
+    schema_type = schema.schema_type
+    print(f'Schema -> id: {id}, subject: {subject}, version: {version}, schema: {schema}, type: {schema_type}')
+    schema_str = schema.schema_str
+    print(f'Schema Str: {schema_str}')
+    return schema
+
+def produce_order_events(schema_registry_client, producer, topic):
+    schema = get_schema(schema_registry_client, 'order')
     integer_serializer = IntegerSerializer()
-    for k,v in read_orders(schemas['Order']):
+    avro_serializer = AvroSerializer(schema_registry_client, schema.schema_str)
+    for k,v in read_orders():
         # Trigger any available delivery report callbacks from previous produce() calls
         producer.poll(0)
         # Asynchronously produce a message. The delivery report callback will
         # be triggered from the call to poll() above, or flush() below, when the
         # message has been successfully delivered or failed permanently.
-        value = json.dumps(v).encode('utf-8')
-        producer.produce(topic, key=integer_serializer(k), value=value, callback=delivery_report)
+        key = integer_serializer(k)
+        value = avro_serializer(v, SerializationContext(topic, MessageField.VALUE))
+        producer.produce(topic, key=key, value=value, on_delivery=delivery_report)
     producer.flush()
 
 if __name__ == '__main__':
     parser = get_argument_parser()
     parsed = parser.parse_args(sys.argv[1:])
     topic = parsed.topic
+    schema_registry_client = get_schema_registry_client()
     config = conf_builder(parsed)
     producer = get_producer(conf_builder(parsed))
-    produce_order_events(producer, topic)
+    produce_order_events(schema_registry_client, producer, topic)
+
 
 
 
