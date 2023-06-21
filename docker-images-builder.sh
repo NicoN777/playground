@@ -16,6 +16,9 @@ cd znode && sh docker-image-builder.sh && cd $PROJECT_ROOT
 # Apache Kafka Broker
 cd kafka-broker && sh docker-image-builder.sh && cd $PROJECT_ROOT
 
+# Confluent Platform Broker
+cd confluent-platform-broker && sh docker-image-builder.sh && cd $PROJECT_ROOT
+
 # Python Admin Client
 cd python-admin-client && sh docker-image-builder.sh && cd $PROJECT_ROOT
 
