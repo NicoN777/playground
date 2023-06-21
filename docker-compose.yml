@@ -38,7 +38,8 @@ services:
       - "2184:2182"
 
   kafka-broker-1:
-    image: toastyboii/kafka-broker:v0.0.1
+#    image: toastyboii/kafka-broker:v0.0.1
+    image: toastyboii/confluent-platform-broker:v0.0.1
     hostname: kafka-broker-1
     depends_on:
       znode1:
@@ -47,6 +48,12 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
+    healthcheck:
+#      test: [ "CMD", "sh", "-c" ,"/home/kafka/healthcheck.sh" ]
+      test: [ "CMD", "sh", "-c" ,"/home/confluent/healthcheck.sh" ]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     env_file: ./kafka-1.env
     command: ["configurator"]
 #    restart: on-failure
@@ -57,7 +64,8 @@ services:
       - 19092
 
   kafka-broker-2:
-    image: toastyboii/kafka-broker:v0.0.1
+#    image: toastyboii/kafka-broker:v0.0.1
+    image: toastyboii/confluent-platform-broker:v0.0.1
     hostname: kafka-broker-2
     depends_on:
       znode1:
@@ -66,8 +74,12 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
-      kafka-broker-1:
-        condition: service_started
+    healthcheck:
+#      test: [ "CMD", "sh", "-c" ,"/home/kafka/healthcheck.sh" ]
+      test: [ "CMD", "sh", "-c" ,"/home/confluent/healthcheck.sh" ]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     env_file: ./kafka-2.env
     ports:
       - "19093:19092"
@@ -76,7 +88,8 @@ services:
       - 19092
 
   kafka-broker-3:
-    image: toastyboii/kafka-broker:v0.0.1
+#    image: toastyboii/kafka-broker:v0.0.1
+    image: toastyboii/confluent-platform-broker:v0.0.1
     hostname: kafka-broker-3
     depends_on:
       znode1:
@@ -85,8 +98,12 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
-      kafka-broker-1:
-        condition: service_started
+    healthcheck:
+#      test: [ "CMD", "sh", "-c" ,"/home/kafka/healthcheck.sh" ]
+      test: [ "CMD", "sh", "-c" ,"/home/confluent/healthcheck.sh" ]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     env_file: ./kafka-3.env
     ports:
       - "19094:19092"
@@ -95,7 +112,8 @@ services:
       - 19092
 
   kafka-broker-4:
-    image: toastyboii/kafka-broker:v0.0.1
+#    image: toastyboii/kafka-broker:v0.0.1
+    image: toastyboii/confluent-platform-broker:v0.0.1
     hostname: kafka-broker-4
     depends_on:
       znode1:
@@ -104,8 +122,12 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
-      kafka-broker-1:
-        condition: service_started
+    healthcheck:
+#      test: [ "CMD", "sh", "-c" ,"/home/kafka/healthcheck.sh" ]
+      test: [ "CMD", "sh", "-c" ,"/home/confluent/healthcheck.sh" ]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     env_file: ./kafka-4.env
     ports:
       - "19095:19092"
@@ -114,7 +136,8 @@ services:
       - 19092
 
   kafka-broker-5:
-    image: toastyboii/kafka-broker:v0.0.1
+#    image: toastyboii/kafka-broker:v0.0.1
+    image: toastyboii/confluent-platform-broker:v0.0.1
     hostname: kafka-broker-5
     depends_on:
       znode1:
@@ -123,8 +146,12 @@ services:
         condition: service_healthy
       znode3:
         condition: service_healthy
-      kafka-broker-1:
-        condition: service_started
+    healthcheck:
+#      test: [ "CMD", "sh", "-c" ,"/home/kafka/healthcheck.sh" ]
+      test: [ "CMD", "sh", "-c" ,"/home/confluent/healthcheck.sh" ]
+      interval: 60s
+      start_period: 20s
+      retries: 2
     env_file: ./kafka-5.env
     ports:
       - "19096:19092"
@@ -139,7 +166,27 @@ services:
     tty: true
     stdin_open: true
     depends_on:
-      - kafka-broker-1
+      kafka-broker-1:
+        condition: service_healthy
+
+  schema-registry-1:
+    image: toastyboii/confluent-platform-broker:v0.0.1
+    hostname: schema-registry-1
+    depends_on:
+      znode1:
+        condition: service_healthy
+      znode2:
+        condition: service_healthy
+      znode3:
+        condition: service_healthy
+    env_file: ./schema-registry-1.env
+    entrypoint: ["sh", "docker-entrypoint-schema-registry.sh"]
+    ports:
+      - "8081:8081"
+      - "9021:9021"
+    expose:
+      - 8081
+      - 9021
 
   ksql-node-1:
     image: toastyboii/ksql-node:v0.0.1
@@ -147,14 +194,14 @@ services:
     env_file: ./ksql-node-1.env
     depends_on:
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
 
   springboot-user-registration-service:
     image: toastyboii/springboot-user-registration-service:v0.0.1
     env_file: ./user-registration-service.env
     depends_on:
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "443:443"
     expose:
@@ -165,7 +212,7 @@ services:
     env_file: ./kafka-streams.env
     depends_on:
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
       springboot-user-registration-service:
         condition: service_started
 
