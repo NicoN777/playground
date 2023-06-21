@@ -1,0 +1,63 @@
+CREATE STREAM user_registration_events_stream
+(id BIGINT,
+first_name VARCHAR,
+last_name VARCHAR,
+email VARCHAR,
+dob DATE,
+country VARCHAR,
+city VARCHAR)
+WITH(kafka_topic='user-registration-events', value_format='json', partitions=5);
+
+
+
+CREATE STREAM order_events_stream
+(id BIGINT,
+customer_id BIGINT,
+items ARRAY<STRUCT< product_name VARCHAR, product_quantity INT, product_price DOUBLE>>,
+total DECIMAL(10,2),
+currency VARCHAR,
+create_date BIGINT,
+shipping_address VARCHAR,
+shipping_city VARCHAR,
+shipping_state VARCHAR,
+shipping_zip VARCHAR)
+WITH(kafka_topic='order-events', value_format='json', partitions=5);
+
+
+
+CREATE STREAM products_stream AS
+SELECT
+            explode(items)->product_name AS name,
+            explode(items)->product_quantity AS quantity,
+            explode(items)->product_price AS price
+FROM order_events_stream
+         EMIT CHANGES;
+
+
+CREATE TABLE product_demand AS
+SELECT name, COUNT(name) AS CNT
+FROM products_stream
+GROUP BY name
+    EMIT CHANGES;
+
+
+CREATE STREAM user_24_hours_spending_stream AS
+SELECT o.customer_id, o.create_date, o.total
+FROM order_events_stream o
+         INNER JOIN user_registration_events_stream u
+    WITHIN 24 HOURS GRACE PERIOD 24 HOURS
+ON o.customer_id = u.id
+    EMIT CHANGES;
+
+CREATE TABLE user_24_hours_spending
+AS
+SELECT customer_id, SUM(total) AS spent
+FROM user_24_hours_spending_stream
+GROUP BY customer_id
+    EMIT CHANGES;
+
+CREATE TABLE order_revenue_by_shipping_state AS
+SELECT shipping_state, sum(total) AS total_sum
+FROM order_events_stream
+GROUP BY shipping_state
+    EMIT CHANGES;
