@@ -1,0 +1,109 @@
+Configurations
+Application:
+spark.app.name
+spark.resources.discoveryPlugin
+spark.extraListeners
+spark.local.dir=/tmp
+spark.logConf=false
+spark.master=    the cluster manager to connect to
+spark.submit.deployMode=
+spark.log.callerContext=
+spark.decommission.enabled=false
+
+
+Driver:
+spark.driver
+cores=1
+maxResultSize=1g
+memory=1g
+memoryOverhead: mininum of 384MB (memory * overhead factor)
+memoryOverheadFactor=0.10
+resource
+    {resourceName}
+        amount=0
+        discoveryScript=None
+        vendor=None
+supervise=false
+log
+    dfsDir=None
+    persistToDfs.enabled=false
+    layout=%d{yy/MM/dd HH:mm:ss.SSS} %t %p %c{1}: %m%n%ex
+    allowErasureCoding=false
+
+
+Executor:
+spark.executor
+memory=1g
+pyspark.memory=Not set
+memoryOverhead= minimum of 384MB (memory * overhead factor)
+memoryOverheadFactor=0.10
+resource:
+    {resourceName}
+        amount=0
+        discoveryScript=None
+        vendor=None
+decommission
+    killInterval=None
+    forceKillTimeout=None
+    signal=PWR
+
+
+
+Runtime:
+Driver:
+spark.driver
+extraClassPath=None prepend to the classpath of the driver
+defaultJavaOptions
+extraJavaOptions
+extraLibraryPath
+userClassPathFirst=false
+
+Executor
+spark.executor
+extraClassPath
+defaultJavaOptions
+extraJavaOptions
+extraLibraryPath
+logs
+    rolling
+        maxRetainedFiles
+        enableCompression=false
+        maxSize
+        strategy
+        time.interval
+userClassPathFirst
+
+spark.executorEnv.[EnvironmentVariableName]
+
+
+spark.files  (comma separated list of files to be placed in the working directory of each executor, globs allowed)
+spark.submit.pyFiles (comma separated list of .zip, .egg, or .py files to place on the PYTHONPATH for Python apps, globs allowed)
+spark.jars (comma separated list of jars to include on the driver and executor classpaths, globs allowed)
+spark.jars.packages (comma separated list of Maven coordinates of jars to include on the driver and executor classpaths.
+                        should be groupId:artifactId:version.
+spark.jars.excludes
+
+spark.jars.repositories (comma separated list of additional remote repositories to search for the maven coordinates given with --packages or spark.jars.packages)
+
+spark.pyspark.driver.python python binary executable to use for PySpark in driver default is the below
+spark.pyspark.python python binary executable to use for PySpark in both driver and executors
+
+
+
+
+
+
+My Cluster:
+master:
+spark-master:
+    expose 8080
+    bind 8080:8080
+
+        sh ${SPARK_HOME}/sbin/start-master.sh
+
+    http://localhost:8080/ WEB UI to get the Spark Master spark://38c4ae1942e6.38c4ae1942e6:7077
+
+workers:
+ spark-worker-1
+
+

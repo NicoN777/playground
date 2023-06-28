@@ -216,3 +216,84 @@ services:
       springboot-user-registration-service:
         condition: service_started
 
+  spark-master-node:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-master-node
+    #    env_file: ./spark-master-node.env
+    ports:
+      - "8080:8080"
+      - "4040:4040"
+    expose:
+      - 8080
+      - 4040
+
+  spark-worker-node-1:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-worker-node-1
+    depends_on:
+      spark-master-node:
+        condition: service_started
+    #    env_file: ./spark-master-node.env
+    entrypoint: ["sh", "docker-worker-entrypoint.sh"]
+    command: ["spark://spark-master-node:7077"]
+    expose:
+      - 8080
+      - 4040
+      - 22
+
+  spark-worker-node-2:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-worker-node-2
+    depends_on:
+      spark-master-node:
+        condition: service_started
+    #    env_file: ./spark-master-node.env
+    entrypoint: [ "sh", "docker-worker-entrypoint.sh" ]
+    command: ["spark://spark-master-node:7077"]
+    expose:
+      - 8080
+      - 4040
+      - 22
+
+  spark-worker-node-3:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-worker-node-3
+    depends_on:
+      spark-master-node:
+        condition: service_started
+    #    env_file: ./spark-master-node.env
+    entrypoint: [ "sh", "docker-worker-entrypoint.sh" ]
+    command: ["spark://spark-master-node:7077"]
+    expose:
+      - 8080
+      - 4040
+      - 22
+
+  spark-worker-node-4:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-worker-node-4
+    depends_on:
+      spark-master-node:
+        condition: service_started
+    #    env_file: ./spark-master-node.env
+    entrypoint: [ "sh", "docker-worker-entrypoint.sh" ]
+    command: ["spark://spark-master-node:7077"]
+    expose:
+      - 8080
+      - 4040
+      - 22
+
+  spark-worker-node-5:
+    image: toastyboii/spark-node:v0.0.1
+    hostname: spark-worker-node-5
+    depends_on:
+      spark-master-node:
+        condition: service_started
+    #    env_file: ./spark-master-node.env
+    entrypoint: [ "sh", "docker-worker-entrypoint.sh" ]
+    command: ["spark://spark-master-node:7077"]
+    expose:
+      - 8080
+      - 4040
+      - 22
+

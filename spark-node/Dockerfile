@@ -1,0 +1,32 @@
+FROM toastyboii/base-ol9-node:v0.0.1
+ARG SPARK_USER=spark
+EXPOSE 22 8080 4040
+ARG DOCKER_HOST_IP
+ARG SPARK_USER_UID=1000
+ARG SPARK_USER_HOME=/home/$SPARK_USER
+ARG SCALA_VERSION=2.13
+ARG SPARK_VERSION=3.4.1
+ARG HADOOP_VERSION=3
+ENV DOCKER_HOST_IP=$DOCKER_HOST_IP
+ENV SPARK_LOG_DIRS=/var/spark-logs
+ENV TLS_DIR="${SPARK_USER_HOME}"/tls
+ENV SPARK_HOME="${SPARK_USER_HOME}/spark-${SPARK_VERSION}"
+ENV SPARK_CONF_DIR="${SPARK_HOME}/config"
+ENV SSL_KEYSTORE_PASS="${SPARK_KEYSTORE_PASS:-changeit}"
+ENV SSL_TRUSTSTORE_PASS="${SPARK_TRUSTSTORE_PASS:-changeit}"
+ENV PATH="${PATH}:${SPARK_HOME}/bin"
+COPY user.sh /tmp
+RUN sh /tmp/user.sh $SPARK_USER $SPARK_USER_UID
+USER $SPARK_USER
+WORKDIR $SPARK_USER_HOME
+COPY --chown=${SPARK_USER_UID}:${SPARK_USER_UID} install.sh $SPARK_USER_HOME
+RUN sh install.sh $SCALA_VERSION $SPARK_VERSION $HADOOP_VERSION
+RUN sudo mkdir -p ${TLS_DIR} && sudo chown -R ${SPARK_USER_UID}:${SPARK_USER_UID} ${TLS_DIR}
+RUN sudo mkdir -p ${SPARK_LOG_DIRS} && sudo chown -R ${SPARK_USER_UID}:${SPARK_USER_UID} ${SPARK_LOG_DIRS}
+COPY --chown=${SPARK_USER_UID}:${SPARK_USER_UID} certificate-authority ${TLS_DIR}
+COPY --chown=${SPARK_USER_UID}:${SPARK_USER_UID} docker-master-entrypoint.sh ${SPARK_USER_HOME}
+COPY --chown=${SPARK_USER_UID}:${SPARK_USER_UID} docker-worker-entrypoint.sh ${SPARK_USER_HOME}
+RUN chmod -x docker-master-entrypoint.sh
+RUN chmod -x docker-worker-entrypoint.sh
+ENTRYPOINT ["sh", "docker-master-entrypoint.sh"]
+CMD [""]
